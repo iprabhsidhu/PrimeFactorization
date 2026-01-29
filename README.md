@@ -5,13 +5,13 @@ Module to solve the prime power product equation:
 where the product of prime powers is bounded by m^2.
 
 # How to run
-```
+```python
     python main.py
 ```
 
 # Examples
 following are the examples of program
-```
+```cmd
 Enter the number >>> 1000
 [(2, 2), (19, 1), (43, 1)]
 [(2, 2), (997, 1)]
@@ -22,7 +22,7 @@ Enter the number >>> 1000
 [(2, 6), (5, 1), (11, 1)]
 [(2, 6), (937, 1)]
 ```
-```
+```cmd
 Enter the number >>> 900
 [(2, 2), (3, 1), (149, 1)]
 [(2, 2), (3, 2), (73, 1)]
