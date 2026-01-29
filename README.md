@@ -6,7 +6,7 @@ where the product of prime powers is bounded by m^2.
 
 # How to run
 ```python
-    python main.py
+python main.py
 ```
 
 # Examples
