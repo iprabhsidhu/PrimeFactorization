@@ -1,6 +1,6 @@
 # Utility functions
 
-from math import sqrt
+from math import sqrt, floor
 
 def is_prime(n):
     if n<=1:
@@ -16,3 +16,6 @@ def primerange(lower, upper):
         if is_prime(num):
             prime_list.append(num)
     return prime_list
+
+def GIN(n) -> int:
+    return floor(n)
