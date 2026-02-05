@@ -4,12 +4,12 @@ Module to solve the prime power product equation:
 where the product of prime powers is bounded by m^2.
 """
 
-from utils import primerange, GIN
+from utils import primerange
 
 def find_prime_sets(m):
     lim = m * m
     # Generate potential primes up to m+1 to cover potential factors
-    primes = list(primerange(2, GIN(m/2)+2))
+    primes = list(primerange(2, m+2))
     solutions = []
 
     def dfs_prime(start_idx, A, B, current):
