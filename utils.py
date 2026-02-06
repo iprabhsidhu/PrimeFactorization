@@ -19,3 +19,8 @@ def primerange(lower, upper):
 
 def GIN(n) -> int:
     return floor(n)
+
+def F(n):
+    sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+    return "F" + str(n).translate(sub)
+
