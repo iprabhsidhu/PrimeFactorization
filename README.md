@@ -114,8 +114,11 @@ for s in solutions:
 Or print a range:
 
 ```python
-pretty_print_solutions(16, 33)
+pretty_print_solutions(16, 33, 3)
 ```
+num1 : starting range
+num2 : ending range
+num3 : max_factors
 
 ---
 
