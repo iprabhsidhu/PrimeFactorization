@@ -1,54 +1,258 @@
-# Sets of Factorization
-(idk what is the title)
-Module to solve the prime power product equation:
-    Π(p_i^a_i) - Π(p_i^a_i - 1) = m
-where the product of prime powers is bounded by m^2.
+# Ring Non‑Unit Invariant Enumerator
 
-# How to run
+This project searches for finite commutative rings (built from prime–power components) whose **number of non‑units** equals a given integer `N`.
+
+Formally, for a ring `R`, the program finds decompositions satisfying:
+
+[
+N = |R| - |U(R)|
+]
+
+where:
+
+* `|R|` = total number of elements in the ring
+* `|U(R)|` = number of invertible elements (units)
+
+The solver enumerates products of finite fields and prime‑power residue rings and checks this invariant exactly.
+
+---
+
+## Mathematical Background
+
+The program constructs rings as direct products:
+
+[
+R = R_1 \times R_2 \times \cdots \times R_k
+]
+
+Each component is one of the following.
+
+### 1. Finite Fields
+
+[
+F_{p^a}
+]
+
+Properties:
+
+| Quantity | Value     |
+| -------- | --------- |
+| Elements | (p^a)     |
+| Units    | (p^a - 1) |
+
+All non‑zero elements are invertible.
+
+---
+
+### 2. Prime‑Power Residue Rings
+
+[
+\mathbb{Z}/p^a\mathbb{Z}
+]
+(denoted `Z(p^a)` in the output)
+
+Properties:
+
+| Quantity | Value           |
+| -------- | --------------- |
+| Elements | (p^a)           |
+| Units    | (p^a - p^{a-1}) |
+
+These rings contain nilpotent elements and zero divisors.
+
+---
+
+## Invariant Being Solved
+
+For a product ring:
+
+[
+R = \prod_{i=1}^{k} R_i
+]
+
+we have:
+
+### Total elements
+
+[
+|R| = \prod_{i=1}^{k} p_i^{a_i}
+]
+
+### Total units
+
+[
+|U(R)| =
+\prod_{i \in \text{fields}} (p_i^{a_i}-1)
+\cdot
+\prod_{i \in Z} (p_i^{a_i}-p_i^{a_i-1})
+]
+
+The program keeps a decomposition if:
+
+[
+\boxed{|R| - |U(R)| = N}
+]
+
+This value equals the number of **non‑invertible elements** of the ring.
+
+---
+
+## What the Program Enumerates
+
+The solver now allows **same‑prime decompositions**. Examples:
+
+* `F8 × Z4`
+* `Z8 × Z4`
+* `F2 × F2 × F5`
+
+These are not restricted by the Chinese Remainder Theorem; the search is purely based on satisfying the invariant equation.
+
+Important: the program enumerates **constructions**, not unique rings. The same structure may appear in multiple orders.
+
+---
+
+## Installation
+
+Requirements:
+
+* Python 3.9+
+* `sympy`
+
+Install dependency:
+
+```bash
+pip install sympy
+```
+
+---
+
+## Running
+
+Typical usage:
+
 ```python
-python main.py
+from solver import find_solution_sets_same_prime
+
+solutions = find_solution_sets_same_prime(18)
+for s in solutions:
+    print(s)
 ```
 
-# Examples
-following are the examples of program
-```cmd
-Enter the number >>> 1000
-[(2, 2), (19, 1), (43, 1)]
-[(2, 2), (997, 1)]
-[(2, 3), (3, 2), (59, 1)]
-[(2, 3), (3, 4), (5, 1)]
-[(2, 3), (17, 1), (37, 1)]
-[(2, 4), (5, 1), (47, 1)]
-[(2, 6), (5, 1), (11, 1)]
-[(2, 6), (937, 1)]
-```
-```cmd
-Enter the number >>> 900
-[(2, 2), (3, 1), (149, 1)]
-[(2, 2), (3, 2), (73, 1)]
-[(2, 7), (773, 1)]
-[(2, 9), (389, 1)]
+Or using the provided range printer:
+
+```python
+pretty_print_solutions(16, 33)
 ```
 
-# Find_prime_set
-Finds all sets of prime-power pairs (p_i, a_i) satisfying the difference equation.
-    
-The function uses a recursive Depth-First Search (DFS) to explore potential 
-prime combinations whose product of powers is less than m^2.
+---
 
-Args:
-    m (int): The target difference value.
-Returns:
-    list[list[tuple[int, int]]]: A list of solutions, where each solution is a list of (prime, exponent) tuples.
+## Output Format
 
-# dfs_prime
+Example line:
 
-Recursive helper to explore prime combinations.
-    Args:
-        start_idx (int): Current index in the primes list to avoid duplicate sets.
-        A (int): Current product of p_i^a_i.
-        B (int): Current product of (p_i^a_i - 1).
-        current (list): Accumulated list of (p_i, a_i) pairs for the current path.
+```
+F8 x Z4  (prod=32, units=14, diff=18)
+```
 
-# utils.py
-This is a utility module coded with functions like is_prime(n) and primerange(lower,upper).
+Meaning:
+
+| Field   | Meaning                      |      |   |      |   |
+| ------- | ---------------------------- | ---- | - | ---- | - |
+| `F8`    | finite field of order 8 (2³) |      |   |      |   |
+| `Z4`    | integers mod 4               |      |   |      |   |
+| `prod`  | total elements (             | R    | ) |      |   |
+| `units` | invertible elements (        | U(R) | ) |      |   |
+| `diff`  | non‑units count = `          | R    | - | U(R) | ` |
+
+---
+
+## Why Duplicates Appear
+
+You may see:
+
+```
+F2 x F4 x F3
+F4 x F2 x F3
+```
+
+These represent the same algebraic structure but different construction orders. The search space is ordered tuples, while direct products are commutative up to isomorphism.
+
+If unique structures are required, canonicalization (sorting factors) must be applied before storing results.
+
+---
+
+## Configuration
+
+Key parameter:
+
+```
+max_factors
+```
+
+Controls the maximum number of components in a product ring.
+
+Higher values:
+
+* Find more solutions
+* Increase runtime exponentially
+
+Recommended values:
+
+| max_factors | Behavior  |
+| ----------- | --------- |
+| 2           | fast      |
+| 3           | practical |
+| 4+          | very slow |
+
+---
+
+## Performance Notes
+
+The search is combinatorial. Complexity grows rapidly because it explores:
+
+* all primes ≤ N
+* all exponents satisfying p^(a−1) ≤ N
+* both ring types
+* all product combinations
+
+Large `N` will become slow without pruning or caching.
+
+---
+
+## Interpretation of Results
+
+The program does **not classify rings**. It solves an arithmetic condition.
+
+The table answers:
+
+> In how many ways can a product of prime‑power components have exactly `N` non‑invertible elements?
+
+It does **not** answer:
+
+> How many distinct rings exist?
+
+Those are different mathematical problems.
+
+---
+
+## Limitations
+
+* Counts include permutations of factors
+* Not a complete classification of finite rings
+* Runtime grows quickly for large N
+* Only commutative rings of the listed forms are considered
+
+---
+
+## Possible Extensions
+
+* Canonical isomorphism collapsing
+* Parallel search
+* Analytical characterization of solvable N
+* Export to CSV/JSON
+
+---
+
+## License
+
+Specify your license here (MIT recommended).
