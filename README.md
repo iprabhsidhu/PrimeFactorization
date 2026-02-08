@@ -1,113 +1,86 @@
 # Ring Non‑Unit Invariant Enumerator
 
-This project searches for finite commutative rings (built from prime–power components) whose **number of non‑units** equals a given integer `N`.
+This project searches for finite commutative rings (built from prime‑power components) whose **number of non‑units** equals a given integer `N`.
 
-Formally, for a ring `R`, the program finds decompositions satisfying:
+The program checks the invariant:
 
-[
-N = |R| - |U(R)|
-]
+```
+N = |R| − |U(R)|
+```
 
-where:
+where
 
 * `|R|` = total number of elements in the ring
 * `|U(R)|` = number of invertible elements (units)
 
-The solver enumerates products of finite fields and prime‑power residue rings and checks this invariant exactly.
-
 ---
 
-## Mathematical Background
+## Allowed building blocks
 
-The program constructs rings as direct products:
+Each factor in a product can be one of two types.
 
-[
-R = R_1 \times R_2 \times \cdots \times R_k
-]
+### Finite field
 
-Each component is one of the following.
-
-### 1. Finite Fields
-
-[
-F_{p^a}
-]
+`F(p^a)`  (printed as `F8`, `F9`, etc.)
 
 Properties:
 
-| Quantity | Value     |
-| -------- | --------- |
-| Elements | (p^a)     |
-| Units    | (p^a - 1) |
+* number of elements: `p^a`
+* number of units: `p^a − 1`
 
 All non‑zero elements are invertible.
 
 ---
 
-### 2. Prime‑Power Residue Rings
+### Prime‑power residue ring
 
-[
-\mathbb{Z}/p^a\mathbb{Z}
-]
-(denoted `Z(p^a)` in the output)
+`Z(p^a)`  (printed as `Z4`, `Z8`, etc.)
+
+This means integers modulo `p^a`.
 
 Properties:
 
-| Quantity | Value           |
-| -------- | --------------- |
-| Elements | (p^a)           |
-| Units    | (p^a - p^{a-1}) |
+* number of elements: `p^a`
+* number of units: `p^a − p^(a−1)`
 
-These rings contain nilpotent elements and zero divisors.
+These rings contain zero divisors and nilpotent elements.
 
 ---
 
-## Invariant Being Solved
+## Product rings
 
-For a product ring:
+The program constructs rings of the form:
 
-[
-R = \prod_{i=1}^{k} R_i
-]
+```
+R = R1 × R2 × ... × Rk
+```
 
-we have:
+For such a product:
 
-### Total elements
+```
+|R|     = product of (p_i^a_i)
+|U(R)|  = product of the unit counts of each component
+```
 
-[
-|R| = \prod_{i=1}^{k} p_i^{a_i}
-]
+A decomposition is accepted if:
 
-### Total units
+```
+|R| − |U(R)| = N
+```
 
-[
-|U(R)| =
-\prod_{i \in \text{fields}} (p_i^{a_i}-1)
-\cdot
-\prod_{i \in Z} (p_i^{a_i}-p_i^{a_i-1})
-]
-
-The program keeps a decomposition if:
-
-[
-\boxed{|R| - |U(R)| = N}
-]
-
-This value equals the number of **non‑invertible elements** of the ring.
+This value is exactly the number of **non‑invertible elements** in the ring.
 
 ---
 
-## What the Program Enumerates
+## Same‑prime decompositions
 
-The solver now allows **same‑prime decompositions**. Examples:
+The solver allows repeated primes. Examples that can appear:
 
 * `F8 × Z4`
 * `Z8 × Z4`
 * `F2 × F2 × F5`
 
-These are not restricted by the Chinese Remainder Theorem; the search is purely based on satisfying the invariant equation.
-
-Important: the program enumerates **constructions**, not unique rings. The same structure may appear in multiple orders.
+This is intentional. The search is not restricted by the Chinese Remainder Theorem; it simply checks the invariant equation.
 
 ---
 
@@ -116,7 +89,7 @@ Important: the program enumerates **constructions**, not unique rings. The same 
 Requirements:
 
 * Python 3.9+
-* `sympy`
+* sympy
 
 Install dependency:
 
@@ -128,7 +101,7 @@ pip install sympy
 
 ## Running
 
-Typical usage:
+Example usage in Python:
 
 ```python
 from solver import find_solution_sets_same_prime
@@ -138,7 +111,7 @@ for s in solutions:
     print(s)
 ```
 
-Or using the provided range printer:
+Or print a range:
 
 ```python
 pretty_print_solutions(16, 33)
@@ -146,7 +119,7 @@ pretty_print_solutions(16, 33)
 
 ---
 
-## Output Format
+## Output format
 
 Example line:
 
@@ -156,17 +129,15 @@ F8 x Z4  (prod=32, units=14, diff=18)
 
 Meaning:
 
-| Field   | Meaning                      |      |   |      |   |
-| ------- | ---------------------------- | ---- | - | ---- | - |
-| `F8`    | finite field of order 8 (2³) |      |   |      |   |
-| `Z4`    | integers mod 4               |      |   |      |   |
-| `prod`  | total elements (             | R    | ) |      |   |
-| `units` | invertible elements (        | U(R) | ) |      |   |
-| `diff`  | non‑units count = `          | R    | - | U(R) | ` |
+* `F8` : finite field of size 8 (2^3)
+* `Z4` : integers modulo 4
+* `prod` : total elements |R|
+* `units` : number of invertible elements |U(R)|
+* `diff` : |R| − |U(R)|
 
 ---
 
-## Why Duplicates Appear
+## Why duplicates appear
 
 You may see:
 
@@ -177,7 +148,7 @@ F4 x F2 x F3
 
 These represent the same algebraic structure but different construction orders. The search space is ordered tuples, while direct products are commutative up to isomorphism.
 
-If unique structures are required, canonicalization (sorting factors) must be applied before storing results.
+So duplicates are **expected** and do not indicate an error.
 
 ---
 
@@ -191,13 +162,6 @@ max_factors
 
 Controls the maximum number of components in a product ring.
 
-Higher values:
-
-* Find more solutions
-* Increase runtime exponentially
-
-Recommended values:
-
 | max_factors | Behavior  |
 | ----------- | --------- |
 | 2           | fast      |
@@ -206,53 +170,46 @@ Recommended values:
 
 ---
 
-## Performance Notes
+## Performance notes
 
-The search is combinatorial. Complexity grows rapidly because it explores:
+The search is combinatorial. Runtime increases quickly because it explores:
 
 * all primes ≤ N
 * all exponents satisfying p^(a−1) ≤ N
 * both ring types
 * all product combinations
 
-Large `N` will become slow without pruning or caching.
+Large `N` will be slow without pruning.
 
 ---
 
-## Interpretation of Results
+## What the results mean
 
-The program does **not classify rings**. It solves an arithmetic condition.
+The program answers:
 
-The table answers:
+> In how many ways can a product of allowed components have exactly N non‑invertible elements?
 
-> In how many ways can a product of prime‑power components have exactly `N` non‑invertible elements?
-
-It does **not** answer:
-
-> How many distinct rings exist?
-
-Those are different mathematical problems.
+It does **not** classify all finite rings.
 
 ---
 
 ## Limitations
 
 * Counts include permutations of factors
-* Not a complete classification of finite rings
+* Not a complete classification of rings
 * Runtime grows quickly for large N
-* Only commutative rings of the listed forms are considered
+* Only the listed ring types are considered
 
 ---
 
-## Possible Extensions
+## Possible extensions
 
-* Canonical isomorphism collapsing
+* Canonical isomorphism collapsing (remove duplicates)
 * Parallel search
-* Analytical characterization of solvable N
-* Export to CSV/JSON
+* Export results to CSV/JSON
 
 ---
 
 ## License
 
-Specify your license here (MIT recommended).
+Add a license file (MIT is typical for small research code).
