@@ -209,7 +209,3 @@ It does **not** classify all finite rings.
 * Export results to CSV/JSON
 
 ---
-
-## License
-
-Add a license file (MIT is typical for small research code).
