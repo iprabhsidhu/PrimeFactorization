@@ -7,7 +7,7 @@ Verifaction : no solution exists for 3342 and 5466
 
 '''
 
-from Mixed_Sets import find_solution_sets_same_prime
+from solver import find_solution_sets_same_prime
 
 def test_case_1():
     for N in range(16, 33):

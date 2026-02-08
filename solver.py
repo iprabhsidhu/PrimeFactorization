@@ -54,3 +54,12 @@ def find_solution_sets_same_prime(N, max_factors=3):
                             })
 
     return solutions
+
+def pretty_print_solutions(num1, num2, factors = 3):
+    for N in range(num1, num2):
+        sols = find_solution_sets_same_prime(N, max_factors=factors)
+        if sols:
+            print(f"\nN = {N}: {len(sols)} solutions")
+            for s in sols:
+                print(f"  {' x '.join(s['factors'])} "
+                    f"(prod={s['prod']}, units={s['units']}, diff={s['prod']-s['units']})")    
