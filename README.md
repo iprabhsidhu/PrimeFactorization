@@ -211,4 +211,8 @@ It does **not** classify all finite rings.
 * Parallel search
 * Export results to CSV/JSON
 
+<<<<<<< HEAD
 ---
+=======
+---
+>>>>>>> 81a602fcd33f19501627a3ce09c9322ec7e63f3e
